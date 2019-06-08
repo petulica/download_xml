@@ -54,12 +54,12 @@ def download_batch(from_, until):
         token = download_page(**params)
 
 
-def prepare_dates(date_beg, date_end, days=1):
+def prepare_dates(date_beg, date_end, days=3):
     d_format = '%Y-%m-%d'
     date_beg, date_end = [datetime.datetime.strptime(d, d_format) for d in (date_beg, date_end)]
     dates = []
     while date_beg <= date_end:
-        dates.append(date_beg.strftime(d_format))
+        dates.append(date_beg.strftime(d_format)+'T00:00:00Z')
         date_beg += datetime.timedelta(days)
     ranges = []
     for i in range(len(dates)-1):
@@ -68,7 +68,7 @@ def prepare_dates(date_beg, date_end, days=1):
 
 
 if __name__ == "__main__":
-    dates = prepare_dates('2019-05-01', '2019-06-09')
+    dates = prepare_dates('2019-04-01', '2019-05-04')
     print(dates)
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
