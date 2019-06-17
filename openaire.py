@@ -1,4 +1,4 @@
-
+import time
 import datetime
 import requests
 
@@ -73,5 +73,6 @@ if __name__ == "__main__":
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
         pool.apply_async(download_batch, args=dr)
+        time.sleep(3)
     pool.close()
     pool.join()
