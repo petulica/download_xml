@@ -52,6 +52,8 @@ def download_batch(from_, until):
     while token:
         params.update(token=token)
         token = download_page(**params)
+    # server requires 1 second delay between requests
+    time.sleep(3)
 
 
 def prepare_dates(date_beg, date_end, days=3):
@@ -73,7 +75,6 @@ if __name__ == "__main__":
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
         pool.apply_async(download_batch, args=dr)
-        # server requires 1 second delay between requests
-        time.sleep(3)
+
     pool.close()
     pool.join()
