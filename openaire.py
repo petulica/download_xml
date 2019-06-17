@@ -73,6 +73,7 @@ if __name__ == "__main__":
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
         pool.apply_async(download_batch, args=dr)
+        # server requires 1 second delay between requests
         time.sleep(3)
     pool.close()
     pool.join()
