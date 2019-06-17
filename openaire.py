@@ -52,9 +52,8 @@ def download_batch(from_, until):
     while token:
         params.update(token=token)
         token = download_page(**params)
-    # server requires 1 second delay between requests
-    time.sleep(3)
-
+        time.sleep(3)# server requires 1 second delay between requests
+    
 
 def prepare_dates(date_beg, date_end, days=3):
     d_format = '%Y-%m-%d'
