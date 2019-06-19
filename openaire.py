@@ -1,3 +1,7 @@
+"""
+Script for harvesting metadata using oai-pmh protocol within defined date range.
+Made by github.com/janaslo
+"""
 import time
 import datetime
 import requests
@@ -6,15 +10,16 @@ from multiprocessing import Pool
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-BASE_URL = 'http://api.openaire.eu/oai_pmh'
-PREFIX = 'oaf'
-SET = 'openaire'
+BASE_URL = 'https://invenio.nusl.cz/oai2d'
+PREFIX = 'marcxml'
+SET = 'global'
 PARAMS = {'verb': 'ListRecords'}
 
-TARGET_DIR = './download'    # nastavit si svuj!
+TARGET_DIR = './download_nusl'    # nastavit si svuj!
 
 
 def download_page(from_=None, until=None, token=None):
+    """Using given parameters download page contents, save into file and return token."""
     if token:
         params = {'resumptionToken': token}
     else:
@@ -25,7 +30,9 @@ def download_page(from_=None, until=None, token=None):
             'until': until
         }
     params.update(PARAMS)
-    #print('PARAMS', params)
+    # print('PARAMS', params)
+    # If page returns undesired return code, try again in 5 sec.
+    
     while not requests.get(BASE_URL, params=params).ok:
         print(page.status_code)
         print(page.text)
@@ -34,9 +41,6 @@ def download_page(from_=None, until=None, token=None):
         time.sleep(5)
 
     page = requests.get(BASE_URL, params=params)
-    if not page.ok:
-        print (page.status_code)
-        print (page.text)
     if 'noRecordsMatch' in page.text:
         print ('NO RECORDS', from_, until)
         return
@@ -54,6 +58,7 @@ def download_page(from_=None, until=None, token=None):
 
 
 def download_batch(from_, until):
+    """Batch management for download_page()."""
     params = {'from_': from_, 'until': until}
     token = download_page(**params)
     while token:
@@ -63,6 +68,7 @@ def download_batch(from_, until):
 
 
 def prepare_dates(date_beg, date_end, days=3):
+    """Split specified date range into time periods and return as list."""
     d_format = '%Y-%m-%d'
     date_beg, date_end = [datetime.datetime.strptime(d, d_format) for d in (date_beg, date_end)]
     dates = []
@@ -76,12 +82,13 @@ def prepare_dates(date_beg, date_end, days=3):
 
 
 if __name__ == "__main__":
-    dates = prepare_dates('2015-04-01', '2019-05-04')
+    """Prepare date ranges, start batches."""
+    dates = prepare_dates('2014-01-01', '2019-06-01')
     print(dates)
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
         pool.apply_async(download_batch, args=dr)
-        # wait before harvesting another date range
-        # time.sleep(3)
+
     pool.close()
     pool.join()
+
