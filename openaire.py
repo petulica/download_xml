@@ -11,7 +11,7 @@ PREFIX = 'oaf'
 SET = 'openaire'
 PARAMS = {'verb': 'ListRecords'}
 
-TARGET_DIR = '/tmp/'    # nastavit si svuj!
+TARGET_DIR = './download'    # nastavit si svuj!
 
 
 def download_page(from_=None, until=None, token=None):
@@ -26,6 +26,13 @@ def download_page(from_=None, until=None, token=None):
         }
     params.update(PARAMS)
     #print('PARAMS', params)
+    while not requests.get(BASE_URL, params=params).ok:
+        print(page.status_code)
+        print(page.text)
+        print('='*50)
+        print("Retrying in 5 seconds...")
+        time.sleep(5)
+
     page = requests.get(BASE_URL, params=params)
     if not page.ok:
         print (page.status_code)
@@ -52,8 +59,8 @@ def download_batch(from_, until):
     while token:
         params.update(token=token)
         token = download_page(**params)
-        time.sleep(3)# server requires 1 second delay between requests
-    
+
+
 
 def prepare_dates(date_beg, date_end, days=3):
     d_format = '%Y-%m-%d'
@@ -69,11 +76,12 @@ def prepare_dates(date_beg, date_end, days=3):
 
 
 if __name__ == "__main__":
-    dates = prepare_dates('2019-04-01', '2019-05-04')
+    dates = prepare_dates('2015-04-01', '2019-05-04')
     print(dates)
     pool = Pool(6, maxtasksperchild=3)
     for dr in dates:
         pool.apply_async(download_batch, args=dr)
-
+        # wait before harvesting another date range
+        # time.sleep(3)
     pool.close()
     pool.join()
