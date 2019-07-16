@@ -34,7 +34,7 @@ def download_batch(date_start, date_end):
     }
     resp = requests.get(URL, params=params)
     resp.raise_for_status()
-    with open(NAME.format(date_start, 1), 'w') as fh:
+    with open(NAME.format(date_start, 1), 'w', encoding='utf-8') as fh:
         fh.write(resp.text)
     count = re.search('<total>(\d*)', resp.text).group(1)
     count = int(count)
@@ -46,7 +46,7 @@ def download_batch(date_start, date_end):
         params['page'] = p
         resp = requests.get(URL, params=params)
         resp.raise_for_status()
-        with open(NAME.format(date_start, p), 'w') as fh:
+        with open(NAME.format(date_start, p), 'w', encoding='utf-8') as fh:
             fh.write(resp.text)
         print (p)
 
@@ -56,4 +56,3 @@ if __name__ == "__main__":
     YEARS = range(2014, 2019)
     for item in get_dates(YEARS):
         download_batch(*item)
-

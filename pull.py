@@ -1,7 +1,8 @@
 import requests
 
 request_base = 'http://api.openaire.eu/search/publications?'
-params = ['hasProject=true', 'fromDateAccepted=2014-02-01', 'toDateAccepted=2014-02-28', 'size=1000']
+params = ['hasProject=true', 'fromDateAccepted=2014-01-01', 'toDateAccepted=2014-01-02', 'size=100', 'hasECFunding=false', 'sortBy=dateofcollection,descending']
+
 page = 1
 
 while True:
@@ -9,9 +10,9 @@ while True:
     page = page + 1
     print("Harvesting " + request)
     content = requests.get(request)
-    if 'noRecordsMatch' in content.text:
-        print ('NO more RECORDS')
-        break
-    with open("openaire_unor14_" + str(page) + ".xml", mode="a", encoding='utf-8') as file:
+
+    with open("01_14_des_ecF" + str(page) + ".xml", mode="a", encoding='utf-8') as file:
         print("Writing into file")
         file.write(content.text)
+    if page == 103:
+        break
